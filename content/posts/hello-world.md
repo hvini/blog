@@ -1,21 +1,24 @@
 ---
-title: "Hello World"
+title: "Hello, World!"
 date: 2026-02-02T08:00:00-03:00
 draft: false
-tags: ["first", "hello"]
+tags: ["Hello World", "AI", "Machine Learning", "Computer Vision"]
 ---
 
-# Welcome to my new blog!
+Welcome  
+This is a space where I share general content, mainly about the principles, algorithms, and mathematical models behind machines’ ability to mimic human cognitive functions such as learning, reasoning, perception, and decision-making.
 
-This is my first post. I used Hugo and the PaperMod theme to build this static site.
+I hold a **degree in Computer Engineering from FACENS** and a **postgraduate specialization in Data Science**, also from FACENS. I am currently a **master’s candidate**, with research focused on **Computer Vision applied to medical imaging**, at **UFSCar**.
 
-## Features
+Throughout my career, I’ve gained hands-on experience with **perception systems**, including:
+- **Camera and LiDAR-based object detection** for road scenarios,
+- **V2X / C-V2X technologies**,
+- **Simulation using CARLA**,
+- **CAN data extraction and analysis**,
+- and **Digital Twin** concepts.
 
-- **Fast**: It's static!
-- **Clean**: PaperMod is minimal.
-- **Code Highlighting**:
-```python
-print("Hello World")
-```
+This blog is meant to be a place to organize ideas, explore theoretical foundations, discuss practical applications, and reflect on the challenges and limitations of artificial intelligence in real-world settings.
 
-Stay tuned for more updates.
+Outside the world of algorithms, I’m a **swimming enthusiast** — because a healthy mind also needs time away from code.
+
+Welcome, and feel free to follow along on this journey.

@@ -35,8 +35,8 @@ defaultContentLanguageInSubdir = false
     
     [languages.en.params.profileMode]
       enabled = true
-      title = "Hi, I'm Vini"
-      subtitle = "Welcome to my digital garden. I write about code, life, and everything in between."
+      title = "Hello, I'm Vinícius"
+      subtitle = "This is a space where I share general content, mainly about the principles, algorithms, and mathematical models behind machines’ ability to mimic human cognitive functions such as learning, reasoning, perception, and decision-making."
       imageUrl = "https://github.com/hvini.png" 
       imageTitle = "Vini"
       imageWidth = 150
@@ -70,8 +70,8 @@ defaultContentLanguageInSubdir = false
     
     [languages.pt-br.params.profileMode]
       enabled = true
-      title = "Oi, eu sou o Vini"
-      subtitle = "Bem-vindo ao meu jardim digital. Escrevo sobre código, vida e tudo mais."
+      title = "Olá, eu sou o Vinícius"
+      subtitle = "Este é um espaço onde compartilho conteúdos diversos, principalmente sobre os princípios, algoritmos e modelos matemáticos por trás da capacidade das máquinas de imitar funções cognitivas humanas, como aprendizado, raciocínio, percepção e tomada de decisão."
       imageUrl = "https://github.com/hvini.png" 
       imageTitle = "Vini"
       imageWidth = 150
