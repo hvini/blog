@@ -1,0 +1,167 @@
+{{- define "main" }}
+
+<style>
+  .archive-container {
+    display: flex;
+    gap: 2rem;
+    position: relative;
+  }
+
+  .archive-content {
+    flex: 1;
+    min-width: 0;
+    /* Prevents flex item from overflowing */
+  }
+
+  .archive-toc {
+    width: 200px;
+    flex-shrink: 0;
+    display: none;
+    /* Hidden on mobile by default */
+  }
+
+  @media (min-width: 1024px) {
+    .archive-toc {
+      display: block;
+    }
+  }
+
+  .archive-toc-inner {
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    padding-left: 1rem;
+    border-left: 1px solid var(--border);
+  }
+
+  .archive-toc h3 {
+    font-size: 1.2rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  .archive-toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .archive-toc li {
+    margin-bottom: 0.5rem;
+  }
+
+  .archive-toc a {
+    text-decoration: none;
+    color: var(--secondary);
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+
+  .archive-toc a:hover {
+    color: var(--primary);
+  }
+
+  .archive-toc .month-link {
+    display: block;
+    padding-left: 1rem;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+  }
+</style>
+
+<header class="page-header">
+  <h1>
+    {{ .Title }}
+  </h1>
+  {{- if .Description }}
+  <div class="post-description">
+    {{ .Description }}
+  </div>
+  {{- end }}
+</header>
+
+<div class="archive-container">
+
+  <div class="archive-content">
+    {{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
+    {{- if site.Params.ShowAllPagesInArchive }}
+    {{- $pages = site.RegularPages }}
+    {{- end }}
+
+    {{- range $pages.GroupByPublishDate "2006" }}
+    {{- if ne .Key "0001" }}
+    <div class="archive-year">
+      {{- $year := replace .Key "0001" "" }}
+      <h2 class="archive-year-header" id="year-{{ $year }}">
+        <a class="archive-header-link" href="#year-{{ $year }}">
+          {{- $year -}}
+        </a>
+        <sup class="archive-count">&nbsp;{{ len .Pages }}</sup>
+      </h2>
+      {{- range .Pages.GroupByDate "01" }}
+      {{- $monthName := i18n (printf "month_%s" .Key) | default .Key }}
+      <div class="archive-month">
+        <h3 class="archive-month-header" id="month-{{ $year }}-{{ .Key }}">
+          <a class="archive-header-link" href="#month-{{ $year }}-{{ .Key }}">
+            {{- $monthName -}}
+          </a>
+          <sup class="archive-count">&nbsp;{{ len .Pages }}</sup>
+        </h3>
+        <div class="archive-posts">
+          {{- range .Pages }}
+          {{- if eq .Kind "page" }}
+          <div class="archive-entry">
+            <h3 class="archive-entry-title">
+              {{- .Title | markdownify }}
+              {{- if .Draft }}
+              <span class="entry-hint" title="Draft">
+                <svg xmlns="http://www.w3.org/2000/svg" height="15" viewBox="0 -960 960 960" fill="currentColor">
+                  <path
+                    d="M160-410v-60h300v60H160Zm0-165v-60h470v60H160Zm0-165v-60h470v60H160Zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22q0 11-4.5 22.5T862.09-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z" />
+                </svg>
+              </span>
+              {{- end }}
+            </h3>
+            <div class="archive-meta">
+              {{- partial "post_meta.html" . -}}
+            </div>
+            <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
+          </div>
+          {{- end }}
+          {{- end }}
+        </div>
+      </div>
+      {{- end }}
+    </div>
+    {{- end }}
+    {{- end }}
+  </div>
+
+  <div class="archive-toc">
+    <div class="archive-toc-inner">
+      <h3>{{ i18n "timeline" | default "Timeline" }}</h3>
+      <ul>
+        {{- range $pages.GroupByPublishDate "2006" }}
+        {{- if ne .Key "0001" }}
+        {{- $year := replace .Key "0001" "" }}
+        <li>
+          <a href="#year-{{ $year }}">{{ $year }}</a>
+          <ul>
+            {{- range .Pages.GroupByDate "01" }}
+            {{- $monthName := i18n (printf "month_%s" .Key) | default .Key }}
+            <li>
+              <a class="month-link" href="#month-{{ $year }}-{{ .Key }}">{{ $monthName }}</a>
+            </li>
+            {{- end }}
+          </ul>
+        </li>
+        {{- end }}
+        {{- end }}
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+{{- end }}

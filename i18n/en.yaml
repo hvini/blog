@@ -1,0 +1,61 @@
+- id: prev_page
+  translation: "Prev"
+
+- id: next_page
+  translation: "Next"
+
+- id: read_time
+  translation:
+    one : "1 min"
+    other: "{{ .Count }} min"
+
+- id: words
+  translation:
+    one : "word"
+    other: "{{ .Count }} words"
+
+- id: toc
+  translation: "Table of Contents"
+
+- id: translations
+  translation: "Translations"
+
+- id: home
+  translation: "Home"
+
+- id: edit_post
+  translation: "Edit"
+
+- id: code_copy
+  translation: "copy"
+
+- id: code_copied
+  translation: "copied!"
+
+- id: timeline
+  translation: "Timeline"
+
+- id: month_01
+  translation: "January"
+- id: month_02
+  translation: "February"
+- id: month_03
+  translation: "March"
+- id: month_04
+  translation: "April"
+- id: month_05
+  translation: "May"
+- id: month_06
+  translation: "June"
+- id: month_07
+  translation: "July"
+- id: month_08
+  translation: "August"
+- id: month_09
+  translation: "September"
+- id: month_10
+  translation: "October"
+- id: month_11
+  translation: "November"
+- id: month_12
+  translation: "December"

@@ -1,0 +1,102 @@
+baseURL = 'https://hvini.github.io/'
+title = 'My Blog'
+theme = 'PaperMod'
+
+enableRobotsTXT = true
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = false
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"] # Necessary for search
+
+[params]
+  defaultTheme = 'auto'
+  ShowReadingTime = true
+  ShowShareButtons = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowWordCount = true
+  displayFullLangName = true
+  
+  [params.assets]
+    favicon = "<link / abs url>"
+
+[languages]
+  [languages.en]
+    languageName = ":us:"
+    weight = 1
+    title = "hvini.github.io"
+    
+    [languages.en.params.profileMode]
+      enabled = true
+      title = "Hi, I'm Vini"
+      subtitle = "Welcome to my digital garden. I write about code, life, and everything in between."
+      imageUrl = "https://github.com/hvini.png" 
+      imageTitle = "Vini"
+      imageWidth = 150
+      imageHeight = 150
+      [[languages.en.params.profileMode.buttons]]
+        name = "Posts"
+        url = "posts"
+      [[languages.en.params.profileMode.buttons]]
+        name = "Search"
+        url = "search"
+      [[languages.en.params.profileMode.buttons]]
+        name = "GitHub"
+        url = "https://github.com/hvini"
+
+    [languages.en.menu]
+      [[languages.en.menu.main]]
+        identifier = "posts"
+        name = "Posts"
+        url = "/posts/"
+        weight = 10
+      [[languages.en.menu.main]]
+        identifier = "search"
+        name = "Search"
+        url = "/search/"
+        weight = 20
+
+  [languages.pt-br]
+    languageName = ":brazil:"
+    weight = 2
+    title = "hvini.github.io"
+    
+    [languages.pt-br.params.profileMode]
+      enabled = true
+      title = "Oi, eu sou o Vini"
+      subtitle = "Bem-vindo ao meu jardim digital. Escrevo sobre código, vida e tudo mais."
+      imageUrl = "https://github.com/hvini.png" 
+      imageTitle = "Vini"
+      imageWidth = 150
+      imageHeight = 150
+      [[languages.pt-br.params.profileMode.buttons]]
+        name = "Artigos"
+        url = "posts"
+      [[languages.pt-br.params.profileMode.buttons]]
+        name = "Busca"
+        url = "search"
+      [[languages.pt-br.params.profileMode.buttons]]
+        name = "GitHub"
+        url = "https://github.com/hvini"
+
+    [languages.pt-br.menu]
+      [[languages.pt-br.menu.main]]
+        identifier = "posts"
+        name = "Artigos"
+        url = "posts"
+        weight = 10
+      [[languages.pt-br.menu.main]]
+        identifier = "search"
+        name = "Busca"
+        url = "search"
+        weight = 20
+
+[permalinks]
+  posts = "/posts/:year/:month/:slug/"

@@ -1,0 +1,8 @@
+/* Make links inside post content blue */
+.post-content a {
+    color: #2563eb; /* Royal Blue */
+}
+
+.post-content a:hover {
+    text-decoration: underline;
+}
