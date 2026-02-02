@@ -23,13 +23,14 @@ defaultContentLanguageInSubdir = false
   ShowCodeCopyButtons = true
   ShowWordCount = true
   displayFullLangName = true
+  comments = true
   
   [params.assets]
     favicon = "<link / abs url>"
 
 [languages]
   [languages.en]
-    languageName = ":us:"
+    languageName = ":us: en"
     weight = 1
     title = "hvini.github.io"
     
@@ -37,7 +38,7 @@ defaultContentLanguageInSubdir = false
       enabled = true
       title = "Hello, I'm Vinícius"
       subtitle = "This is a space where I share general content, mainly about the principles, algorithms, and mathematical models behind machines’ ability to mimic human cognitive functions such as learning, reasoning, perception, and decision-making."
-      imageUrl = "https://github.com/hvini.png" 
+      imageUrl = "swim.png" 
       imageTitle = "Vini"
       imageWidth = 150
       imageHeight = 150
@@ -64,7 +65,7 @@ defaultContentLanguageInSubdir = false
         weight = 20
 
   [languages.pt-br]
-    languageName = ":brazil:"
+    languageName = ":brazil: pt"
     weight = 2
     title = "hvini.github.io"
     
@@ -72,7 +73,7 @@ defaultContentLanguageInSubdir = false
       enabled = true
       title = "Olá, eu sou o Vinícius"
       subtitle = "Este é um espaço onde compartilho conteúdos diversos, principalmente sobre os princípios, algoritmos e modelos matemáticos por trás da capacidade das máquinas de imitar funções cognitivas humanas, como aprendizado, raciocínio, percepção e tomada de decisão."
-      imageUrl = "https://github.com/hvini.png" 
+      imageUrl = "swim.png" 
       imageTitle = "Vini"
       imageWidth = 150
       imageHeight = 150
