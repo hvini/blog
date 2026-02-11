@@ -34,7 +34,7 @@ Se nossa classe de modelo for muito complexa (muito capaz de memorização), o t
 
 Como medimos a "complexidade" de uma classe de modelos? Uma das medidas clássicas é a **Dimensão Vapnik-Chervonenkis (VC)**. Ela mede o poder combinatório de uma classe de hipóteses, especificamente, sua capacidade de atribuir qualquer rótulo a um conjunto de pontos.
 
-![vc-dimension-shattering](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/vc-dimension-shattering.png)
+![Três pontos de dados arranjados em um triângulo em um plano, mostrando como um classificador linear pode distinguir entre todas as atribuições de rótulos possíveis (shattering).](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/vc-dimension-shattering.png "Exemplo de Fragmentação na Dimensão VC")
 
 ### 3.1 Shattering (Fragmentação)
 
@@ -78,7 +78,7 @@ $$
 \text{Erro} = \text{Viés}^2 + \text{Variância} + \text{Ruído}
 $$
 
-![bias-variance-tradeof](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/bias-variance-tradeoff.jpg)
+![Gráfico de linha ilustrando o Compromisso Viés-Variância: O viés diminui e a variância aumenta à medida que a complexidade do modelo cresce, enquanto o erro total é minimizado em uma complexidade intermediária.](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/bias-variance-tradeoff.jpg "Gráfico do Tradeoff Viés-Variância")
 
 1.  **Baixa Complexidade (Alto Viés):**
     * O modelo é muito simples (ex: ajustar uma reta a uma curva).

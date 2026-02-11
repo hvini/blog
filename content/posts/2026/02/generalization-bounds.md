@@ -34,7 +34,7 @@ If our model class is too complex (too capable of memorization), the penalty ter
 
 How do we measure the "complexity" of a model class? One of the classical measures is the **Vapnik-Chervonenkis (VC) Dimension**. It measures the combinatorial power of a hypothesis class, specifically, its ability to assign any label to a set of points.
 
-![vc-dimension-shattering](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/vc-dimension-shattering.png)
+![Three data points arranged in a triangle on a plane, showing how a linear classifier can distinguish between all possible label assignments (shattering).](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/vc-dimension-shattering.png "VC Dimension Shattering Example")
 
 ### 3.1 Shattering
 
@@ -78,7 +78,7 @@ $$
 \text{Error} = \text{Bias}^2 + \text{Variance} + \text{Noise}
 $$
 
-![bias-variance-tradeof](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/bias-variance-tradeoff.jpg)
+![Line graph illustrating the Bias-Variance Tradeoff: Bias decreases and Variance increases as model complexity grows, while total error minimizes at an intermediate complexity.](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/bias-variance-tradeoff.jpg "Bias-Variance Tradeoff Graph")
 
 1.  **Low Complexity (High Bias):**
     * The model is too simple (e.g., fitting a line to a curve).

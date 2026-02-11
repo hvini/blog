@@ -1,8 +1,205 @@
 /* Make links inside post content blue */
 .post-content a {
-    color: #2563eb; /* Royal Blue */
+    color: #2563eb;
+    /* Royal Blue */
 }
 
 .post-content a:hover {
     text-decoration: underline;
+}
+
+/* --------------------------------------------------
+   Accessibility: Skip Link
+   -------------------------------------------------- */
+.screen-reader-text {
+    border: 0;
+    clip: rect(1px, 1px, 1px, 1px);
+    clip-path: inset(50%);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute !important;
+    width: 1px;
+    word-wrap: normal !important;
+    z-index: 99999;
+    /* Ensure it stays on top */
+}
+
+.screen-reader-text:focus {
+    background-color: var(--theme);
+    color: var(--primary);
+    display: block;
+    font-size: 1rem;
+    font-weight: bold;
+    height: auto;
+    left: 5px;
+    line-height: normal;
+    padding: 15px 23px 14px;
+    text-decoration: none;
+    top: 5px;
+    width: auto;
+    z-index: 100000;
+    border: 2px solid var(--primary);
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    clip: auto !important;
+    clip-path: none !important;
+}
+
+/* --------------------------------------------------
+   Accessibility: Focus Management
+   -------------------------------------------------- */
+/* Robust visible focus for keyboard users */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 4px;
+}
+
+/* Fallback for browsers that don't support :focus-visible fully yet, or simple focus */
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Remove default focus if custom one is applied (sometimes needed) */
+/* .button:focus, .entry-link:focus { outline: none; } -- CAREFUL with this, better to override than remove */
+
+/* Specific focus for entry link (the overlay) */
+.entry-link:focus {
+    outline: none;
+    /* We will highlight the parent container instead if possible, or style this */
+}
+
+.post-entry:focus-within {
+    outline: 2px solid var(--primary);
+    outline-offset: 4px;
+    border-radius: var(--radius);
+}
+
+/* --------------------------------------------------
+   Reactivity: Hover Effects & Micro-animations
+   -------------------------------------------------- */
+
+/* Post Entries Cards */
+.post-entry {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, background-color 0.2s;
+}
+
+.post-entry:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    /* For dark mode, shadow might be different, but opacity handles it usually */
+}
+
+[data-theme="dark"] .post-entry:hover {
+    background: var(--entry);
+    /* Ensure background is solid */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Buttons */
+.button {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, box-shadow 0.2s;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button:active {
+    transform: translateY(0);
+}
+
+/* Navigation Menu Items */
+.header .menu li a {
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+/* Underline animation for menu items */
+.header .menu li a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary);
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+}
+
+.header .menu li a:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+/* Social Icons (Already added, but reinforcing) */
+.social-icons a {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.social-icons a:hover {
+    transform: scale(1.2);
+}
+
+/* Profile Image */
+.profile img {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.3);
+    /* Hypothetical var, or just use shadow */
+}
+
+/* Pagination Links */
+.pagination a {
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.pagination a:hover {
+    background-color: var(--tertiary);
+    transform: translateX(0px) scale(1.02);
+    /* Subtle scale */
+}
+
+.pagination .prev:hover {
+    transform: translateX(-4px);
+}
+
+.pagination .next:hover {
+    transform: translateX(4px);
+}
+
+
+/* --------------------------------------------------
+   Accessibility: Reduced Motion
+   -------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    ::after,
+    ::before {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .post-entry:hover,
+    .button:hover,
+    .social-icons a:hover,
+    .pagination .prev:hover,
+    .pagination .next:hover {
+        transform: none !important;
+    }
 }
