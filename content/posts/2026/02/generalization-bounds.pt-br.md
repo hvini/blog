@@ -1,18 +1,18 @@
 ---
 title: "Limites de Generalização: Quando o Baixo Erro de Treino Realmente Importa?"
-date: 2026-02-10T16:16:00-03:00
-draft: true
-tags: ["Machine Learning", "VC Dimension", "Generalization", "AI Theory"]
+date: 2026-02-11T09:00:00-03:00
+draft: false
+tags: ["Machine Learning", "Distribution Shift", "AI Theory"]
 math: true
 ---
 
 ## 1 Introdução
 
-No [post anterior](/posts/2026/02/empirical-risk-minimization-and-distribution-shift), discutimos a Minimização do Risco Empírico (ERM), a estratégia de escolher o preditor que apresenta o melhor desempenho nos nossos dados de treinamento. Assumimos que, se o erro de treinamento $\hat{R}(h)$ for baixo, o risco real $R(h)$ (desempenho em dados futuros) também deveria ser baixo.
+No [post anterior](/pt-br/posts/2026/02/minimização-do-risco-empírico-e-mudança-de-distribuição), discutimos a Minimização do Risco Empírico (ERM), a estratégia de escolher o preditor que apresenta o melhor desempenho nos nossos dados de treinamento. Assumimos que, se o erro de treinamento $\hat{R}(h)$ for baixo, o risco real $R(h)$ (desempenho em dados futuros) também deveria ser baixo.
 
 Mas isso é sempre verdade?
 
-Imagine um estudante estudando para uma prova. Um estudante entende os conceitos; o outro apenas memoriza as questões do simulado. Ambos podem tirar 100% no simulado (risco empírico zero), mas o que memorizou irá falhar na prova real (risco real alto).
+Imagine 2 alunos estudando para uma prova. Um aluno entende os conceitos, o outro apenas memoriza as questões do simulado. Ambos podem tirar 100% no simulado (risco empírico zero), mas o que memorizou irá falhar na prova real (risco real alto).
 
 Essa diferença entre o erro de treinamento e o erro real é chamada de **Lacuna de Generalização** (*Generalization Gap*). Para confiar em nossos modelos, precisamos de **Limites de Generalização**: garantias matemáticas de que essa lacuna não será muito grande.
 
@@ -34,20 +34,20 @@ Se nossa classe de modelo for muito complexa (muito capaz de memorização), o t
 
 Como medimos a "complexidade" de uma classe de modelos? Uma das medidas clássicas é a **Dimensão Vapnik-Chervonenkis (VC)**. Ela mede o poder combinatório de uma classe de hipóteses, especificamente, sua capacidade de atribuir qualquer rótulo a um conjunto de pontos.
 
+![vc-dimension-shattering](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/vc-dimension-shattering.png)
 
+### 3.1 Shattering (Fragmentação)
 
-### 3.1 Shattering (Pulverização)
+Para entender a dimensão VC, precisamos do conceito de **shattering** (ou fragmentação).
+Uma classe de hipóteses $H$ *fragmenta* (*shatters*) um conjunto de pontos de dados se, não importa como atribuímos rótulos binários ($+$ ou $-$) a esses pontos, existe uma função em $H$ que pode separá-los perfeitamente.
 
-Para entender a dimensão VC, precisamos do conceito de **shattering** (ou pulverização).
-Uma classe de hipóteses $H$ *pulveriza* (*shatters*) um conjunto de pontos de dados se, não importa como atribuímos rótulos binários ($+$ ou $-$) a esses pontos, existe uma função em $H$ que pode separá-los perfeitamente.
-
-* **Exemplo:** Imagine 3 pontos formando um triângulo em um plano 2D. Uma linha reta consegue separá-los para *todas* as rotulações possíveis (ex: todos positivos, dois positivos e um negativo, etc.)? Sim. Portanto, um classificador linear pode pulverizar (*shatter*) 3 pontos.
+* **Exemplo:** Imagine 3 pontos formando um triângulo em um plano 2D. Uma linha reta consegue separá-los para *todas* as rotulações possíveis (ex: todos positivos, dois positivos e um negativo, etc.)? Sim. Portanto, um classificador linear pode fragmentar (*shatter*) 3 pontos.
 
 No entanto, se adicionarmos um 4º ponto (especificamente em uma configuração XOR), um classificador linear **não consegue** separar os positivos dos negativos para todas as combinações de rótulos.
 
 ### 3.2 A Definição
 
-A Dimensão VC de uma classe de hipóteses $H$, denotada como $VC(H)$, é o **tamanho do maior conjunto de pontos** que pode ser pulverizado (*shattered*) por $H$.
+A Dimensão VC de uma classe de hipóteses $H$, denotada como $VC(H)$, é o **tamanho do maior conjunto de pontos** que pode ser fragmentado (*shattered*) por $H$.
 
 * Classificadores lineares em 2D têm $VC = 3$.
 * Classificadores lineares em $d$ dimensões têm $VC = d+1$.
@@ -77,6 +77,8 @@ Queremos minimizar o Risco Real, que se decompõe aproximadamente em:
 $$
 \text{Erro} = \text{Viés}^2 + \text{Variância} + \text{Ruído}
 $$
+
+![bias-variance-tradeof](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/bias-variance-tradeoff.jpg)
 
 1.  **Baixa Complexidade (Alto Viés):**
     * O modelo é muito simples (ex: ajustar uma reta a uma curva).

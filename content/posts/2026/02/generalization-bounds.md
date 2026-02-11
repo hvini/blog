@@ -1,8 +1,8 @@
 ---
 title: "Generalization Bounds: When Does Low Training Error Matter?"
-date: 2026-02-10T16:16:00-03:00
-draft: true
-tags: ["Machine Learning", "VC Dimension", "Generalization", "AI Theory"]
+date: 2026-02-11T09:00:00-03:00
+draft: false
+tags: ["Machine Learning", "Distribution Shift", "AI Theory"]
 math: true
 ---
 
@@ -12,7 +12,7 @@ In the [previous post](/posts/2026/02/empirical-risk-minimization-and-distributi
 
 But is this always true?
 
-Imagine a student studying for an exam. One student understands the concepts; another purely memorizes the practice questions. Both might get 100% on the practice test (zero empirical risk), but the memorizer will fail the actual exam (high true risk).
+Imagine 2 students preparing for an exam. One student understands the concepts, another purely memorizes the practice questions. Both might get 100% on the practice test (zero empirical risk), but the memorizer will fail the actual exam (high true risk).
 
 This gap between the training error and the true error is called the **Generalization Gap**. To trust our models, we need **Generalization Bounds**: mathematical guarantees that the gap won't be too large.
 
@@ -34,7 +34,7 @@ If our model class is too complex (too capable of memorization), the penalty ter
 
 How do we measure the "complexity" of a model class? One of the classical measures is the **Vapnik-Chervonenkis (VC) Dimension**. It measures the combinatorial power of a hypothesis class, specifically, its ability to assign any label to a set of points.
 
-[Image of VC dimension shattering 3 points 2D]
+![vc-dimension-shattering](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/vc-dimension-shattering.png)
 
 ### 3.1 Shattering
 
@@ -78,7 +78,7 @@ $$
 \text{Error} = \text{Bias}^2 + \text{Variance} + \text{Noise}
 $$
 
-[Image of bias variance tradeoff curve]
+![bias-variance-tradeof](https://storage.googleapis.com/blog-images-southamerica-east1/2026/02/generalization-bounds/bias-variance-tradeoff.jpg)
 
 1.  **Low Complexity (High Bias):**
     * The model is too simple (e.g., fitting a line to a curve).

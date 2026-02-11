@@ -2,7 +2,7 @@
 title: "Empirical Risk Minimization and Distribution Shift"
 date: 2026-02-02T08:10:00-03:00
 draft: false
-tags: ["Machine Learning", "ERM", "Distribution Shift", "AI Theory"]
+tags: ["Machine Learning", "Distribution Shift", "AI Theory"]
 math: true
 ---
 
