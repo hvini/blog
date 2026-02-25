@@ -8,7 +8,7 @@ math: true
 
 ## 1 Introduction
 
-In the [previous post](/posts/2026/02/empirical-risk-minimization-and-distribution-shift), we discussed Empirical Risk Minimization (ERM), the strategy of choosing the predictor that performs best on our training data. We assumed that if the training error $\hat{R}(h)$ is low, the true risk $R(h)$ (performance on future data) should also be low.
+In the [previous post](/posts/2026/02/02/empirical-risk-minimization-and-distribution-shift), we discussed Empirical Risk Minimization (ERM), the strategy of choosing the predictor that performs best on our training data. We assumed that if the training error $\hat{R}(h)$ is low, the true risk $R(h)$ (performance on future data) should also be low.
 
 But is this always true?
 

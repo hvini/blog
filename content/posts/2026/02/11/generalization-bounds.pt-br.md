@@ -8,7 +8,7 @@ math: true
 
 ## 1 Introdução
 
-No [post anterior](/pt-br/posts/2026/02/minimização-do-risco-empírico-e-mudança-de-distribuição), discutimos a Minimização do Risco Empírico (ERM), a estratégia de escolher o preditor que apresenta o melhor desempenho nos nossos dados de treinamento. Assumimos que, se o erro de treinamento $\hat{R}(h)$ for baixo, o risco real $R(h)$ (desempenho em dados futuros) também deveria ser baixo.
+No [post anterior](/pt-br/posts/2026/02/02/minimização-do-risco-empírico-e-mudança-de-distribuição), discutimos a Minimização do Risco Empírico (ERM), a estratégia de escolher o preditor que apresenta o melhor desempenho nos nossos dados de treinamento. Assumimos que, se o erro de treinamento $\hat{R}(h)$ for baixo, o risco real $R(h)$ (desempenho em dados futuros) também deveria ser baixo.
 
 Mas isso é sempre verdade?
 

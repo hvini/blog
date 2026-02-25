@@ -100,4 +100,4 @@ defaultContentLanguageInSubdir = false
         weight = 20
 
 [permalinks]
-  posts = "/posts/:year/:month/:slug/"
+  posts = "/posts/:year/:month/:day/:slug/"
