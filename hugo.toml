@@ -1,4 +1,4 @@
-baseURL = 'https://hvini.github.io/'
+baseURL = 'https://hvini.github.io/blog/'
 title = 'My Blog'
 theme = 'PaperMod'
 
