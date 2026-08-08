@@ -32,7 +32,7 @@ defaultContentLanguageInSubdir = false
 
 [languages]
   [languages.en]
-    label = ":us: en"
+    languageName = ":us: en"
     weight = 1
     title = "hvini.github.io"
     
@@ -67,7 +67,7 @@ defaultContentLanguageInSubdir = false
         weight = 20
 
   [languages.pt-br]
-    label = ":brazil: pt"
+    languageName = ":brazil: pt"
     weight = 2
     title = "hvini.github.io"
     
