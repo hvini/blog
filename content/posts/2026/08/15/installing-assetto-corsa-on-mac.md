@@ -1,5 +1,6 @@
 ---
 title: "How I Installed Assetto Corsa into a Mac: A Step-by-Step Guide"
+slug: "installing-assetto-corsa-on-mac"
 date: 2026-08-15T09:50:00-03:00
 draft: false
 tags: ["Assetto Corsa", "Sim Racing", "Telemetry", "Mac", "Gaming", "Wine"]
