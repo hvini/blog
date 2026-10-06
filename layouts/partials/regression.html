@@ -1,0 +1,175 @@
+{{ $id := printf "reg-%s" (md5 (printf "%v%v" . now.UnixNano)) }}
+<section class="interactive-component premium-card" id="{{ $id }}" style="background: var(--code-bg, #ffffff); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid var(--border, #eaeaea); margin-bottom: 2.5rem; font-family: 'Inter', sans-serif;">
+  <h3 style="margin-top: 0; color: var(--primary, #2c3e50); border-bottom: 3px solid var(--primary, #3498db); padding-bottom: 15px; margin-bottom: 15px; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">{{ .title | default "Interactive Linear Regression" }}</h3>
+  <p style="color: #666; margin-bottom: 25px; font-size: 1.05rem; line-height: 1.6;">{{ .description | default "Adjust the slope (m) and intercept (b) sliders to fit the line to the data points. Minimize the Mean Squared Error (MSE) to find the best fit." }}</p>
+
+  <div style="display: flex; gap: 30px; align-items: stretch; flex-wrap: wrap;">
+    <div style="flex: 2; min-width: 300px; position: relative; border-radius: 10px; border: 2px solid #eaeaea; overflow: hidden; box-shadow: inset 0 0 15px rgba(0,0,0,0.02); background: #fdfdfd; padding-bottom: 50%; height: 0;">
+      <canvas class="reg-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+    </div>
+    
+    <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 20px; background: #fafafa; padding: 25px; border-radius: 12px; border: 1px solid #eee;">
+      
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:10px;">
+          <label style="font-weight:700; color:#333;">Slope <span style="color:#7f8c8d; font-weight:500;">(m)</span></label>
+          <span class="reg-m-val" style="background: var(--primary, #3498db); color: white; padding: 4px 10px; border-radius: 6px; font-weight: 800;">{{ .slope | default 1.0 }}</span>
+        </div>
+        <input type="range" class="reg-m" min="-3" max="3" step="0.1" value="{{ .slope | default 1.0 }}" style="width: 100%; accent-color: var(--primary, #3498db); cursor: pointer;">
+      </div>
+      
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:10px;">
+          <label style="font-weight:700; color:#333;">Intercept <span style="color:#7f8c8d; font-weight:500;">(b)</span></label>
+          <span class="reg-b-val" style="background: var(--primary, #3498db); color: white; padding: 4px 10px; border-radius: 6px; font-weight: 800;">{{ .intercept | default 50 }}</span>
+        </div>
+        <input type="range" class="reg-b" min="-100" max="400" step="5" value="{{ .intercept | default 50 }}" style="width: 100%; accent-color: var(--primary, #3498db); cursor: pointer;">
+      </div>
+      
+      <div style="margin-top: 10px; padding: 20px; background: white; border-radius: 8px; border: 2px dashed #e74c3c; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+        <h4 style="margin: 0 0 10px 0; color: #7f8c8d; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px;">Mean Squared Error</h4>
+        <p style="font-size: 2.2rem; font-weight: 900; margin: 0; color: #e74c3c; line-height: 1;" class="reg-mse">0.0</p>
+      </div>
+      
+      <button class="reg-best-fit" style="margin-top: auto; padding: 14px 20px; cursor: pointer; width:100%; font-weight:800; font-size: 1.1rem; background: #2ecc71; color: white; border: none; border-radius: 8px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);">🎯 Auto Best Fit</button>
+    </div>
+  </div>
+
+  <style>
+    #{{ $id }} .reg-best-fit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6); }
+    #{{ $id }} .reg-best-fit:active { transform: translateY(1px); }
+  </style>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const root = document.getElementById("{{ $id }}");
+      const canvas = root.querySelector(".reg-canvas");
+      const ctx = canvas.getContext("2d");
+      const mIn = root.querySelector(".reg-m");
+      const bIn = root.querySelector(".reg-b");
+      const mOut = root.querySelector(".reg-m-val");
+      const bOut = root.querySelector(".reg-b-val");
+      const mseOut = root.querySelector(".reg-mse");
+      const fitBtn = root.querySelector(".reg-best-fit");
+
+      function resizeCanvas() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        // Adjust points to fit new width
+        if (points.length > 0) {
+           const scaleX = canvas.width / oldW;
+           const scaleY = canvas.height / oldH;
+           points.forEach(p => { p.x *= scaleX; p.y *= scaleY; });
+           oldW = canvas.width; oldH = canvas.height;
+           draw();
+        }
+      }
+
+      let oldW = 600, oldH = 300;
+      const points = [];
+      
+      function init() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width || 600;
+        canvas.height = rect.height || 300;
+        oldW = canvas.width;
+        oldH = canvas.height;
+
+        const numPoints = {{ .points | default 25 }};
+        for (let i = 0; i < numPoints; i++) {
+          const x = Math.random() * (canvas.width * 0.8) + (canvas.width * 0.1);
+          const y = x * 0.5 + (canvas.height*0.2) + (Math.random() * canvas.height*0.3 - canvas.height*0.15);
+          points.push({ x, y });
+        }
+        draw();
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+
+      function draw() {
+        if (!canvas.width) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const m = parseFloat(mIn.value);
+        const b = parseFloat(bIn.value);
+        
+        const calcY = (x) => m * x + b;
+        const drawY = (y) => canvas.height - y;
+
+        // Draw line
+        ctx.beginPath();
+        ctx.moveTo(0, drawY(calcY(0)));
+        ctx.lineTo(canvas.width, drawY(calcY(canvas.width)));
+        ctx.strokeStyle = "#2ecc71";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        let mse = 0;
+        points.forEach(p => {
+          const predY = calcY(p.x);
+          const error = p.y - predY;
+          mse += error * error;
+
+          // Error line
+          ctx.beginPath();
+          ctx.moveTo(p.x, drawY(p.y));
+          ctx.lineTo(p.x, drawY(predY));
+          ctx.strokeStyle = "rgba(231, 76, 60, 0.4)";
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Point
+          ctx.beginPath();
+          ctx.arc(p.x, drawY(p.y), 6, 0, 2 * Math.PI);
+          ctx.fillStyle = "var(--primary, #3498db)";
+          ctx.fill();
+          ctx.strokeStyle = "#fff";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+
+        mse /= points.length;
+        mseOut.textContent = Math.round(mse).toLocaleString();
+      }
+
+      function update() {
+        mOut.textContent = parseFloat(mIn.value).toFixed(2);
+        bOut.textContent = parseFloat(bIn.value).toFixed(1);
+        draw();
+      }
+
+      function bestFit() {
+        let xSum = 0, ySum = 0, xxSum = 0, xySum = 0;
+        points.forEach(p => {
+          xSum += p.x; ySum += p.y;
+          xxSum += p.x * p.x; xySum += p.x * p.y;
+        });
+        const n = points.length;
+        const slope = (n * xySum - xSum * ySum) / (n * xxSum - xSum * xSum);
+        const intercept = (ySum - slope * xSum) / n;
+        
+        mIn.value = slope;
+        bIn.value = intercept;
+        update();
+      }
+
+      [mIn, bIn].forEach(el => el.addEventListener("change", () => {
+        document.dispatchEvent(new CustomEvent("gamification:slider_completed", { detail: { id: "{{ $id }}" } }));
+      }));
+      [mIn, bIn].forEach(el => el.addEventListener("input", update));
+      
+      fitBtn.addEventListener("click", () => {
+        bestFit();
+        document.dispatchEvent(new CustomEvent("gamification:slider_completed", { detail: { id: "{{ $id }}-bestfit" } }));
+      });
+      
+      setTimeout(() => {
+        init();
+        update();
+      }, 100);
+    });
+  </script>
+</section>

@@ -148,3 +148,7 @@
     });
 </script>
 {{- end }}
+
+<!-- Build and bundle the JS using Hugo Pipes -->
+{{ $gamification := resources.Get "js/gamification/index.js" | js.Build }}
+<script src="{{ $gamification.RelPermalink }}" defer></script>

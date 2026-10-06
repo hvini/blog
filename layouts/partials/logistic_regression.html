@@ -1,0 +1,138 @@
+{{ $id := printf "logreg-%s" (md5 (printf "%v%v" . now.UnixNano)) }}
+<section class="interactive-component premium-card" id="{{ $id }}" style="background: var(--code-bg, #ffffff); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid var(--border, #eaeaea); margin-bottom: 2.5rem; font-family: 'Inter', sans-serif;">
+  <h3 style="margin-top: 0; color: var(--primary, #2c3e50); border-bottom: 3px solid var(--primary, #3498db); padding-bottom: 15px; margin-bottom: 15px; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">{{ .title | default "Interactive Logistic Regression" }}</h3>
+  <p style="color: #666; margin-bottom: 25px; font-size: 1.05rem; line-height: 1.6;">{{ .description | default "Adjust the Weight (w) and Bias (b) to shift the Sigmoid curve. Try to minimize the Cross-Entropy Loss to perfectly separate the two classes." }}</p>
+
+  <div style="display: flex; gap: 30px; align-items: stretch; flex-wrap: wrap;">
+    <div style="flex: 2; min-width: 300px; position: relative; border-radius: 10px; border: 2px solid #eaeaea; overflow: hidden; box-shadow: inset 0 0 15px rgba(0,0,0,0.02); background: #fdfdfd; padding-bottom: 50%; height: 0;">
+      <canvas class="log-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+    </div>
+    
+    <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 20px; background: #fafafa; padding: 25px; border-radius: 12px; border: 1px solid #eee;">
+      
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:10px;">
+          <label style="font-weight:700; color:#333;">Weight <span style="color:#7f8c8d; font-weight:500;">(w)</span></label>
+          <span class="log-w-val" style="background: var(--primary, #3498db); color: white; padding: 4px 10px; border-radius: 6px; font-weight: 800;">{{ .w | default 0.05 }}</span>
+        </div>
+        <input type="range" class="log-w" min="-0.2" max="0.2" step="0.01" value="{{ .w | default 0.05 }}" style="width: 100%; accent-color: var(--primary, #3498db); cursor: pointer;">
+      </div>
+      
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:10px;">
+          <label style="font-weight:700; color:#333;">Bias <span style="color:#7f8c8d; font-weight:500;">(b)</span></label>
+          <span class="log-w-val" class="log-b-val" style="background: var(--primary, #3498db); color: white; padding: 4px 10px; border-radius: 6px; font-weight: 800;">{{ .b | default -10 }}</span>
+        </div>
+        <input type="range" class="log-b" min="-40" max="40" step="1" value="{{ .b | default -10 }}" style="width: 100%; accent-color: var(--primary, #3498db); cursor: pointer;">
+      </div>
+      
+      <div style="margin-top: 10px; padding: 20px; background: white; border-radius: 8px; border: 2px dashed #9b59b6; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+        <h4 style="margin: 0 0 10px 0; color: #7f8c8d; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px;">Cross-Entropy Loss</h4>
+        <p style="font-size: 2.2rem; font-weight: 900; margin: 0; color: #8e44ad; line-height: 1;" class="log-loss">0.000</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const root = document.getElementById("{{ $id }}");
+      const canvas = root.querySelector(".log-canvas");
+      const ctx = canvas.getContext("2d");
+      const wIn = root.querySelector(".log-w");
+      const bIn = root.querySelector(".log-b");
+      const wOut = root.querySelector(".log-w-val");
+      const bOut = root.querySelector(".log-b-val") || root.querySelectorAll(".log-w-val")[1]; // Handle typo in class
+      const lossOut = root.querySelector(".log-loss");
+
+      function resizeCanvas() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        if(points.length > 0) draw();
+      }
+
+      const points = [];
+      function init() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width || 600;
+        canvas.height = rect.height || 300;
+        
+        const numPoints = {{ .points | default 20 }};
+        for (let i = 0; i < numPoints; i++) {
+          points.push({ x: Math.random() * (canvas.width * 0.4) + (canvas.width * 0.05), y: 0 }); // Class 0
+          points.push({ x: Math.random() * (canvas.width * 0.4) + (canvas.width * 0.55), y: 1 }); // Class 1
+        }
+        draw();
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+
+      function sigmoid(z) { return 1 / (1 + Math.exp(-z)); }
+
+      function draw() {
+        if (!canvas.width) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const w = parseFloat(wIn.value);
+        const b = parseFloat(bIn.value);
+        
+        const marginY = canvas.height * 0.15;
+        const drawY = (val) => canvas.height - marginY - val * (canvas.height - 2 * marginY);
+
+        // Guidelines
+        ctx.strokeStyle = "rgba(0,0,0,0.05)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, drawY(0)); ctx.lineTo(canvas.width, drawY(0));
+        ctx.moveTo(0, drawY(1)); ctx.lineTo(canvas.width, drawY(1));
+        ctx.stroke();
+
+        // Draw sigmoid
+        ctx.beginPath();
+        for (let x = 0; x <= canvas.width; x += 5) {
+          const pred = sigmoid(w * x + b);
+          if (x === 0) ctx.moveTo(x, drawY(pred));
+          else ctx.lineTo(x, drawY(pred));
+        }
+        ctx.strokeStyle = "#8e44ad";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        let loss = 0;
+        points.forEach(p => {
+          const pred = sigmoid(w * p.x + b);
+          const epsilon = 1e-15;
+          const pPred = Math.max(epsilon, Math.min(1 - epsilon, pred));
+          loss += - (p.y * Math.log(pPred) + (1 - p.y) * Math.log(1 - pPred));
+
+          ctx.beginPath();
+          ctx.arc(p.x, drawY(p.y), 8, 0, 2 * Math.PI);
+          ctx.fillStyle = p.y === 1 ? "#3498db" : "#f39c12";
+          ctx.fill();
+          ctx.strokeStyle = "#fff";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        });
+
+        loss /= points.length;
+        lossOut.textContent = loss.toFixed(4);
+      }
+
+      function update() {
+        wOut.textContent = parseFloat(wIn.value).toFixed(2);
+        bOut.textContent = parseFloat(bIn.value).toFixed(1);
+        draw();
+      }
+
+      [wIn, bIn].forEach(el => el.addEventListener("change", () => {
+        document.dispatchEvent(new CustomEvent("gamification:slider_completed", { detail: { id: "{{ $id }}" } }));
+      }));
+      [wIn, bIn].forEach(el => el.addEventListener("input", update));
+      
+      setTimeout(() => {
+        init();
+        update();
+      }, 100);
+    });
+  </script>
+</section>

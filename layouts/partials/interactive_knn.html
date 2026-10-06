@@ -1,0 +1,155 @@
+{{ $id := printf "knn-%s" (md5 (printf "%v%v" . now.UnixNano)) }}
+<section class="interactive-component premium-card" id="{{ $id }}" style="background: var(--code-bg, #ffffff); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid var(--border, #eaeaea); margin-bottom: 2.5rem; font-family: 'Inter', sans-serif;">
+  <h3 style="margin-top: 0; color: var(--primary, #2c3e50); border-bottom: 3px solid var(--primary, #3498db); padding-bottom: 15px; margin-bottom: 15px; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">{{ .title | default "Interactive K-Nearest Neighbors" }}</h3>
+  <p style="color: #666; margin-bottom: 25px; font-size: 1.05rem; line-height: 1.6;">{{ .description | default "Click anywhere on the canvas to add a new point. The algorithm will classify it in real-time based on its K nearest neighbors." }}</p>
+  
+  <div style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 15px 25px; border-radius: 10px; border: 1px solid #eee;">
+    <div style="display: flex; align-items: center; gap: 20px; flex: 1;">
+      <label for="{{ $id }}-k" style="font-weight: 700; color: #444; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+        K = <span class="knn-k-val" style="display:inline-block; width: 30px; text-align: center; background: var(--primary, #3498db); color: white; padding: 4px 8px; border-radius: 6px; font-size: 1.2rem;">{{ .k | default 3 }}</span>
+      </label>
+      <input type="range" class="knn-k" min="1" max="15" step="2" value="{{ .k | default 3 }}" style="flex: 1; max-width: 300px; accent-color: var(--primary, #3498db); cursor: pointer;">
+    </div>
+    <button class="knn-reset" style="padding: 10px 20px; cursor:pointer; background: white; border: 2px solid #ddd; border-radius: 8px; font-weight: 700; color: #555; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">Reset Data</button>
+  </div>
+  
+  <div style="position: relative; width: 100%; padding-bottom: 50%; /* 2:1 aspect ratio */ height: 0; overflow: hidden; border-radius: 10px; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); border: 2px solid #eaeaea; background: #fdfdfd;">
+    <canvas class="knn-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair;"></canvas>
+  </div>
+
+  <style>
+    #{{ $id }} .knn-reset:hover { border-color: var(--primary, #3498db); color: var(--primary, #3498db); transform: translateY(-1px); }
+  </style>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const root = document.getElementById("{{ $id }}");
+      const canvas = root.querySelector(".knn-canvas");
+      const ctx = canvas.getContext("2d");
+      const kSlider = root.querySelector(".knn-k");
+      const kValOut = root.querySelector(".knn-k-val");
+      const resetBtn = root.querySelector(".knn-reset");
+
+      // Handle responsive canvas
+      function resizeCanvas() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        draw();
+      }
+      window.addEventListener('resize', resizeCanvas);
+
+      let points = [];
+      let newPoint = null;
+      let neighbors = [];
+      const c1 = "{{ index (default (slice "#ff4757" "#1e90ff") .colors) 0 }}";
+      const c2 = "{{ index (default (slice "#ff4757" "#1e90ff") .colors) 1 }}";
+
+      function generatePoints() {
+        points = [];
+        const w = canvas.width || 600;
+        const h = canvas.height || 300;
+        const numPoints = {{ .points | default 20 }};
+        for (let i = 0; i < numPoints; i++) {
+          points.push({ x: w * 0.2 + Math.random() * w * 0.4, y: h * 0.1 + Math.random() * h * 0.8, class: c1 });
+          points.push({ x: w * 0.6 + Math.random() * w * 0.3, y: h * 0.1 + Math.random() * h * 0.8, class: c2 });
+        }
+        newPoint = null;
+        neighbors = [];
+        draw();
+      }
+
+      function draw() {
+        if (!canvas.width) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (newPoint && neighbors.length > 0) {
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 6]);
+          neighbors.forEach(n => {
+            ctx.beginPath();
+            ctx.moveTo(newPoint.x, newPoint.y);
+            ctx.lineTo(n.x, n.y);
+            ctx.strokeStyle = "rgba(0,0,0,0.2)";
+            ctx.stroke();
+          });
+          ctx.setLineDash([]);
+        }
+
+        points.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 7, 0, 2 * Math.PI);
+          ctx.fillStyle = p.class;
+          ctx.fill();
+          ctx.strokeStyle = "rgba(255,255,255,0.8)";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+
+        if (newPoint) {
+          ctx.beginPath();
+          ctx.arc(newPoint.x, newPoint.y, 10, 0, 2 * Math.PI);
+          ctx.fillStyle = newPoint.class;
+          ctx.fill();
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          ctx.strokeStyle = '#333';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          
+          // Draw subtle glow
+          ctx.beginPath();
+          ctx.arc(newPoint.x, newPoint.y, 25, 0, 2 * Math.PI);
+          ctx.fillStyle = newPoint.class + "33"; // 20% opacity hex
+          ctx.fill();
+        }
+      }
+
+      canvas.addEventListener("click", function(e) {
+        const rect = canvas.getBoundingClientRect();
+        const k = parseInt(kSlider.value);
+        newPoint = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+          class: '#95a5a6'
+        };
+
+        const dists = points.map(p => ({
+          ...p,
+          d: Math.hypot(p.x - newPoint.x, p.y - newPoint.y)
+        })).sort((a, b) => a.d - b.d);
+
+        neighbors = dists.slice(0, k);
+
+        let c1Count = 0;
+        let c2Count = 0;
+        neighbors.forEach(n => {
+          if (n.class === c1) c1Count++;
+          else c2Count++;
+        });
+        
+        newPoint.class = c1Count > c2Count ? c1 : c2;
+        draw();
+        document.dispatchEvent(new CustomEvent("gamification:chart_interacted", { detail: { id: "{{ $id }}" } }));
+      });
+
+      kSlider.addEventListener("input", () => {
+        kValOut.textContent = kSlider.value;
+        if (newPoint) {
+          canvas.dispatchEvent(new MouseEvent("click", {
+             clientX: newPoint.x + canvas.getBoundingClientRect().left,
+             clientY: newPoint.y + canvas.getBoundingClientRect().top
+          }));
+        }
+      });
+      resetBtn.addEventListener("click", generatePoints);
+
+      // Initialize
+      setTimeout(() => {
+        resizeCanvas();
+        generatePoints();
+      }, 100);
+    });
+  </script>
+</section>

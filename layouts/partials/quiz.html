@@ -1,0 +1,107 @@
+{{ $id := printf "quiz-%s" (md5 (printf "%v%v" . now.UnixNano)) }}
+<section class="interactive-component premium-card" id="{{ $id }}" style="background: var(--code-bg, #f8f9fa); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid var(--border, #eaeaea); margin-bottom: 2.5rem; font-family: 'Inter', sans-serif;">
+  <h3 style="margin-top: 0; color: var(--primary, #2c3e50); border-bottom: 3px solid var(--primary, #3498db); padding-bottom: 15px; margin-bottom: 25px; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">{{ .title | default "Interactive Quiz" }}</h3>
+
+  {{- range $i, $q := .questions }}
+  <div class="quiz-question" data-answer="{{ $q.answer }}" style="margin-bottom: 25px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05);">
+    <h4 style="margin-top: 0; margin-bottom: 15px; font-size: 1.15rem; color: #333;">{{ add $i 1 }}. {{ $q.question }}</h4>
+    <div class="quiz-options" style="display: flex; flex-direction: column; gap: 10px;">
+      {{- range $j, $option := $q.options }}
+      <button type="button" class="quiz-option" data-index="{{ $j }}" style="text-align: left; padding: 14px 20px; border-radius: 8px; border: 2px solid var(--border, #e0e0e0); background: #fafafa; cursor: pointer; transition: all 0.2s ease; font-size: 1rem; color: #444; font-weight: 500;">
+        {{ $option }}
+      </button>
+      {{- end }}
+    </div>
+    <div class="quiz-feedback" hidden style="margin-top: 15px; padding: 12px 15px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 10px;"></div>
+  </div>
+  {{- end }}
+
+  <div style="text-align: right; margin-top: 20px;">
+    <button type="button" class="quiz-submit" style="background: linear-gradient(135deg, var(--primary, #3498db), #2980b9); color: white; border: none; padding: 14px 30px; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);">Check Answers</button>
+  </div>
+
+  <div class="quiz-result" hidden style="margin-top: 25px; font-size: 1.3rem; font-weight: 700; text-align: center; padding: 20px; background: rgba(52, 152, 219, 0.08); border-radius: 10px; border: 2px dashed var(--primary, #3498db); color: var(--primary, #2c3e50);"></div>
+</section>
+
+<style>
+  #{{ $id }} .quiz-option:hover { background: #fff; border-color: #bdc3c7; transform: translateX(4px); }
+  #{{ $id }} .quiz-option.selected { border-color: var(--primary, #3498db); background: rgba(52, 152, 219, 0.05); color: var(--primary, #2980b9); font-weight: 700; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.15); transform: scale(1.01); }
+  #{{ $id }} .quiz-option.correct { background: rgba(46, 204, 113, 0.1); border-color: #2ecc71; color: #27ae60; font-weight: 700; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.2); }
+  #{{ $id }} .quiz-option.incorrect { background: rgba(231, 76, 60, 0.08); border-color: #e74c3c; color: #c0392b; opacity: 0.8; }
+  #{{ $id }} .quiz-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6); }
+  #{{ $id }} .quiz-submit:active { transform: translateY(1px); }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const root = document.getElementById("{{ $id }}");
+  const questions = root.querySelectorAll(".quiz-question");
+  const submit = root.querySelector(".quiz-submit");
+  const result = root.querySelector(".quiz-result");
+
+  questions.forEach(function (question) {
+    const options = question.querySelectorAll(".quiz-option");
+    options.forEach(function (option) {
+      option.addEventListener("click", function () {
+        options.forEach(o => o.classList.remove("selected"));
+        option.classList.add("selected");
+      });
+    });
+  });
+
+  submit.addEventListener("click", function () {
+    let score = 0;
+    let answered = 0;
+
+    questions.forEach(function (question) {
+      const answer = Number(question.dataset.answer);
+      const selected = question.querySelector(".quiz-option.selected");
+      const feedback = question.querySelector(".quiz-feedback");
+
+      question.querySelectorAll(".quiz-option").forEach(o => o.classList.remove("correct", "incorrect"));
+
+      if (!selected) {
+        feedback.innerHTML = "⚠️ Please select an answer.";
+        feedback.style.color = "#e67e22";
+        feedback.style.background = "rgba(230, 126, 34, 0.1)";
+        feedback.hidden = false;
+        return;
+      }
+
+      answered++;
+      const selectedIndex = Number(selected.dataset.index);
+
+      if (selectedIndex === answer) {
+        score++;
+        selected.classList.add("correct");
+        feedback.innerHTML = "🎉 Correct!";
+        feedback.style.color = "#27ae60";
+        feedback.style.background = "rgba(46, 204, 113, 0.15)";
+      } else {
+        selected.classList.add("incorrect");
+        question.querySelector('[data-index="' + answer + '"]').classList.add("correct");
+        feedback.innerHTML = "💡 Not quite. The correct answer is highlighted.";
+        feedback.style.color = "#c0392b";
+        feedback.style.background = "rgba(231, 76, 60, 0.1)";
+      }
+      feedback.hidden = false;
+    });
+
+    if (answered < questions.length) {
+      result.innerHTML = "⚠️ Please answer all questions before submitting.";
+      result.style.borderColor = "#e67e22";
+      result.style.color = "#d35400";
+      result.style.background = "rgba(230, 126, 34, 0.1)";
+    } else {
+      const pct = Math.round((score / questions.length) * 100);
+      let emoji = pct === 100 ? "🏆" : pct >= 70 ? "🔥" : "📚";
+      result.innerHTML = `${emoji} You scored <strong style="font-size:1.5em; color:var(--primary,#3498db);">${score}</strong> out of <strong>${questions.length}</strong>!`;
+      result.style.borderColor = "var(--primary, #3498db)";
+      result.style.color = "var(--primary, #2c3e50)";
+      result.style.background = "rgba(52, 152, 219, 0.08)";
+      document.dispatchEvent(new CustomEvent("gamification:quiz_completed", { detail: { id: "{{ $id }}" } }));
+    }
+    result.hidden = false;
+  });
+});
+</script>

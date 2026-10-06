@@ -1,0 +1,360 @@
+<!-- Gamification HUD: floating badge + slide-out progress drawer -->
+
+<!-- Floating trigger button -->
+<button id="gam-hud-trigger" aria-label="View your progress" title="Your progress">
+  <span id="gam-hud-level">Lv 1</span>
+</button>
+
+<!-- Slide-out drawer overlay -->
+<div id="gam-hud-overlay" aria-hidden="true"></div>
+
+<!-- Slide-out drawer panel -->
+<aside id="gam-hud-drawer" aria-label="Your progress" aria-hidden="true">
+  <div id="gam-hud-drawer-inner">
+    <div id="gam-hud-header">
+      <h2>Your Progress</h2>
+      <button id="gam-hud-close" aria-label="Close progress panel">✕</button>
+    </div>
+    <div id="gam-hud-body">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</aside>
+
+<style>
+  /* ── Floating trigger ── */
+  #gam-hud-trigger {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 8000;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    background: var(--primary, #3498db);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(52, 152, 219, 0.45);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  #gam-hud-trigger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(52, 152, 219, 0.55);
+  }
+  #gam-hud-trigger:active { transform: translateY(0); }
+
+  /* ── Overlay ── */
+  #gam-hud-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 8500;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  #gam-hud-overlay.open { display: block; }
+  #gam-hud-overlay.visible { opacity: 1; }
+
+  /* ── Drawer ── */
+  #gam-hud-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 360px;
+    max-width: 95vw;
+    z-index: 9000;
+    background: var(--theme, #fff);
+    border-left: 1px solid var(--border, #eaeaea);
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.12);
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    font-family: 'Inter', -apple-system, sans-serif;
+  }
+  #gam-hud-drawer.open { transform: translateX(0); }
+
+  #gam-hud-drawer-inner { padding: 28px 24px; }
+
+  #gam-hud-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border, #eee);
+  }
+  #gam-hud-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary, #2c3e50);
+  }
+  #gam-hud-close {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: var(--secondary, #888);
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  #gam-hud-close:hover { background: var(--border, #eee); }
+
+  /* ── Body sections ── */
+  .gam-section { margin-bottom: 24px; }
+  .gam-section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: var(--secondary, #888);
+    margin: 0 0 12px 0;
+  }
+
+  /* Level + XP bar */
+  .gam-level-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .gam-level-label {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--primary, #3498db);
+  }
+  .gam-xp-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--secondary, #7f8c8d);
+  }
+  .gam-xp-bar-track {
+    background: var(--border, #ecf0f1);
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .gam-xp-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--primary, #3498db), #2980b9);
+    transition: width 0.6s ease;
+  }
+
+  /* Stats grid */
+  .gam-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .gam-stat-card {
+    background: var(--code-bg, #f8f9fa);
+    border: 1px solid var(--border, #eee);
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .gam-stat-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text, #2c3e50);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .gam-stat-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--secondary, #7f8c8d);
+  }
+
+  /* Badge list */
+  .gam-badge-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border, #eee);
+    margin-bottom: 8px;
+    transition: border-color 0.2s, opacity 0.2s;
+  }
+  .gam-badge-item.locked { opacity: 0.5; }
+  .gam-badge-item.unlocked { border-color: var(--primary, #3498db); background: var(--code-bg, #f0f7ff); }
+  .gam-badge-icon { font-size: 1.6rem; line-height: 1; }
+  .gam-badge-icon.locked { filter: grayscale(100%); }
+  .gam-badge-name { font-weight: 700; font-size: 0.95rem; color: var(--text, #2c3e50); }
+  .gam-badge-desc { font-size: 0.8rem; color: var(--secondary, #7f8c8d); margin-top: 1px; }
+
+  /* Reset button */
+  #gam-reset-btn {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    background: none;
+    border: 1px solid var(--border, #ddd);
+    border-radius: 8px;
+    color: var(--secondary, #888);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  #gam-reset-btn:hover { border-color: #e74c3c; color: #e74c3c; }
+
+  /* Reduce motion */
+  @media (prefers-reduced-motion: reduce) {
+    #gam-hud-trigger, #gam-hud-drawer, #gam-hud-overlay,
+    .gam-xp-bar-fill { transition: none; }
+  }
+</style>
+
+<script>
+(function() {
+  var trigger  = document.getElementById('gam-hud-trigger');
+  var overlay  = document.getElementById('gam-hud-overlay');
+  var drawer   = document.getElementById('gam-hud-drawer');
+  var closeBtn = document.getElementById('gam-hud-close');
+  var body     = document.getElementById('gam-hud-body');
+  var levelEl  = document.getElementById('gam-hud-level');
+
+  function openDrawer() {
+    overlay.classList.add('open');
+    drawer.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(function() {
+      overlay.classList.add('visible');
+      drawer.classList.add('open');
+    });
+    document.body.style.overflow = 'hidden';
+    renderDrawer();
+  }
+
+  function closeDrawer() {
+    overlay.classList.remove('visible');
+    drawer.classList.remove('open');
+    setTimeout(function() { overlay.classList.remove('open'); }, 300);
+    document.body.style.overflow = '';
+    drawer.setAttribute('aria-hidden', 'true');
+  }
+
+  trigger.addEventListener('click', openDrawer);
+  closeBtn.addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDrawer();
+  });
+
+  function renderDrawer() {
+    var g = window.gamification;
+    if (!g) { body.innerHTML = '<p style="color:#888;font-size:.9rem;">Gamification not loaded yet.</p>'; return; }
+
+    var state = g.getState();
+    // Find level thresholds — mirror logic from engine
+    var LEVELS = [
+      {level:1,xp:0},{level:2,xp:100},{level:3,xp:250},
+      {level:4,xp:500},{level:5,xp:1000},{level:6,xp:1500}
+    ];
+    var BADGES = [
+      {id:'first-article',   name:'First Steps',       desc:'Complete your first article',          icon:'📖'},
+      {id:'curious-mind',    name:'Curious Mind',       desc:'Interact with 5 interactive elements', icon:'🧠'},
+      {id:'quizzer',         name:'Quizzer',            desc:'Complete 3 quizzes',                   icon:'✅'},
+      {id:'knowledge-seeker',name:'Knowledge Seeker',   desc:'Complete 5 articles',                  icon:'🔍'},
+      {id:'experimenter',    name:'Experimenter',       desc:'Interact with 5 experiments',          icon:'🧪'},
+      {id:'getting-serious', name:'Getting Serious',    desc:'Earn 500 XP',                          icon:'🔥'},
+      {id:'dedicated',       name:'Dedicated',          desc:'Earn 1,000 XP',                        icon:'💎'}
+    ];
+
+    var nextXP = LEVELS[LEVELS.length - 1].xp;
+    var prevXP = 0;
+    for (var i = 0; i < LEVELS.length; i++) {
+      if (LEVELS[i].level === state.level) {
+        prevXP = LEVELS[i].xp;
+        nextXP = (i + 1 < LEVELS.length) ? LEVELS[i + 1].xp : state.xp;
+        break;
+      }
+    }
+    var pct = (nextXP > prevXP)
+      ? Math.min(100, Math.round(((state.xp - prevXP) / (nextXP - prevXP)) * 100))
+      : 100;
+
+    var unlockedCount = state.badges.length;
+
+    var badgesHTML = BADGES.map(function(b) {
+      var unlocked = state.badges.indexOf(b.id) !== -1;
+      return '<div class="gam-badge-item ' + (unlocked ? 'unlocked' : 'locked') + '">' +
+        '<div class="gam-badge-icon ' + (unlocked ? '' : 'locked') + '">' + b.icon + '</div>' +
+        '<div><div class="gam-badge-name">' + b.name + '</div>' +
+        '<div class="gam-badge-desc">' + b.desc + '</div></div>' +
+        '</div>';
+    }).join('');
+
+    body.innerHTML =
+      '<div class="gam-section">' +
+        '<p class="gam-section-title">Level &amp; XP</p>' +
+        '<div class="gam-level-row">' +
+          '<span class="gam-level-label">Level ' + state.level + '</span>' +
+          '<span class="gam-xp-label">' + state.xp + ' / ' + nextXP + ' XP</span>' +
+        '</div>' +
+        '<div class="gam-xp-bar-track">' +
+          '<div class="gam-xp-bar-fill" style="width:' + pct + '%;"></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="gam-section">' +
+        '<p class="gam-section-title">Stats</p>' +
+        '<div class="gam-stats-grid">' +
+          '<div class="gam-stat-card"><div class="gam-stat-value">' + state.completedArticles.length + '</div><div class="gam-stat-label">Articles</div></div>' +
+          '<div class="gam-stat-card"><div class="gam-stat-value">' + state.completedQuizzes.length + '</div><div class="gam-stat-label">Quizzes</div></div>' +
+          '<div class="gam-stat-card"><div class="gam-stat-value">' + state.interactedElements.length + '</div><div class="gam-stat-label">Experiments</div></div>' +
+          '<div class="gam-stat-card"><div class="gam-stat-value">' + unlockedCount + '</div><div class="gam-stat-label">Badges</div></div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="gam-section">' +
+        '<p class="gam-section-title">Badges (' + unlockedCount + '/' + BADGES.length + ')</p>' +
+        badgesHTML +
+      '</div>' +
+
+      '<button id="gam-reset-btn">↺ Reset all progress</button>';
+
+    // Re-bind close + reset after innerHTML
+    document.getElementById('gam-reset-btn').addEventListener('click', function() {
+      if (confirm('Reset all your progress? This cannot be undone.')) {
+        window.gamification.reset();
+        renderDrawer();
+        levelEl.textContent = 'Lv 1';
+      }
+    });
+  }
+
+  // Keep floating button label up to date
+  function syncHUDLevel() {
+    var g = window.gamification;
+    if (!g) return;
+    levelEl.textContent = 'Lv ' + g.getLevel();
+  }
+
+  // Poll until gamification is ready, then subscribe
+  (function waitForGamification() {
+    if (window.gamification && window.gamification.getState) {
+      syncHUDLevel();
+      window.gamification.subscribe && window.gamification.subscribe(function() {
+        syncHUDLevel();
+      });
+    } else {
+      setTimeout(waitForGamification, 100);
+    }
+  })();
+})();
+</script>

@@ -1,0 +1,213 @@
+{{ $id := printf "km-%s" (md5 (printf "%v%v" . now.UnixNano)) }}
+<section class="interactive-component premium-card" id="{{ $id }}" style="background: var(--code-bg, #ffffff); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid var(--border, #eaeaea); margin-bottom: 2.5rem; font-family: 'Inter', sans-serif; box-sizing: border-box; overflow: hidden;">
+  <h3 style="margin-top: 0; color: var(--primary, #2c3e50); border-bottom: 3px solid var(--primary, #3498db); padding-bottom: 15px; margin-bottom: 15px; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;">{{ .title | default "Interactive K-Means Clustering" }}</h3>
+  <p style="color: #666; margin-bottom: 20px; font-size: 1.05rem; line-height: 1.6;">{{ .description | default "Change the number of clusters (K) and click the canvas to add custom points. Step through the algorithm to see how K-Means dynamically adjusts." }}</p>
+
+  <div style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; background: #fafafa; padding: 15px 25px; border-radius: 10px; border: 1px solid #eee;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-right: 10px;">
+      <label for="{{ $id }}-k" style="font-weight: 700; color: #444; font-size: 1.05rem; display: flex; align-items: center; gap: 10px;">
+        K = <span class="km-k-val" style="display:inline-block; width: 25px; text-align: center; background: var(--primary, #3498db); color: white; padding: 4px 8px; border-radius: 6px; font-size: 1.1rem;">{{ .k | default 3 }}</span>
+      </label>
+      <input type="range" class="km-k" min="1" max="6" step="1" value="{{ .k | default 3 }}" style="width: 100px; accent-color: var(--primary, #3498db); cursor: pointer;">
+    </div>
+    
+    <button class="km-step" style="padding: 10px 20px; font-weight: 800; cursor: pointer; background: linear-gradient(135deg, var(--primary, #3498db), #2980b9); color: white; border: none; border-radius: 8px; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4); transition: all 0.2s;">▶ Step Iteration</button>
+    <button class="km-gen" style="padding: 10px 15px; font-weight: 700; cursor: pointer; background: white; border: 2px solid #ddd; border-radius: 8px; color: #555; transition: all 0.2s;">Randomize Data</button>
+    <button class="km-clear" style="padding: 10px 15px; font-weight: 700; cursor: pointer; background: white; border: 2px solid #e74c3c; color: #e74c3c; border-radius: 8px; transition: all 0.2s;">Clear</button>
+
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
+      <span class="km-status" style="font-weight: 800; font-size: 0.9rem; padding: 6px 12px; background: white; border-radius: 6px; border: 1px solid #eee; color: var(--primary, #2c3e50); box-shadow: 0 2px 8px rgba(0,0,0,0.02); text-align: center;">Ready</span>
+    </div>
+  </div>
+  
+  <div style="position: relative; width: 100%; padding-bottom: 50%; height: 0; overflow: hidden; border-radius: 10px; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); border: 2px solid #eaeaea; background: #fdfdfd; cursor: crosshair;">
+    <canvas class="km-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+  </div>
+
+  <style>
+    #{{ $id }} .km-step:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6); }
+    #{{ $id }} .km-step:active { transform: translateY(1px); }
+    #{{ $id }} .km-gen:hover { border-color: #95a5a6; color: #333; }
+    #{{ $id }} .km-clear:hover { background: #e74c3c; color: white; }
+  </style>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const root = document.getElementById("{{ $id }}");
+      const canvas = root.querySelector(".km-canvas");
+      const ctx = canvas.getContext("2d");
+      const stepBtn = root.querySelector(".km-step");
+      const genBtn = root.querySelector(".km-gen");
+      const clearBtn = root.querySelector(".km-clear");
+      const kSlider = root.querySelector(".km-k");
+      const kValOut = root.querySelector(".km-k-val");
+      const statusOut = root.querySelector(".km-status");
+
+      function resizeCanvas() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        if(points.length > 0) draw();
+      }
+      window.addEventListener('resize', resizeCanvas);
+
+      const colors = ["#e74c3c", "#3498db", "#2ecc71", "#9b59b6", "#f1c40f", "#e67e22"];
+      let points = [];
+      let centroids = [];
+      let state = 0; 
+      let iteration = 0;
+
+      function resetCentroids() {
+        centroids = [];
+        const K = parseInt(kSlider.value);
+        for (let i = 0; i < K; i++) {
+          centroids.push({
+            x: Math.random() * (canvas.width - 60) + 30,
+            y: Math.random() * (canvas.height - 60) + 30,
+            c: i
+          });
+        }
+        points.forEach(p => p.c = -1);
+        state = 0;
+        iteration = 0;
+        statusOut.textContent = "Centroids Randomized";
+        draw();
+      }
+
+      function initData() {
+        points = [];
+        const K = parseInt(kSlider.value);
+        const numBlobs = Math.min(K, 4);
+        for (let b = 0; b < numBlobs; b++) {
+          const cx = Math.random() * (canvas.width * 0.6) + canvas.width * 0.2;
+          const cy = Math.random() * (canvas.height * 0.6) + canvas.height * 0.2;
+          for (let i = 0; i < 20; i++) {
+            points.push({ 
+              x: cx + (Math.random() * 100 - 50), 
+              y: cy + (Math.random() * 100 - 50), 
+              c: -1 
+            });
+          }
+        }
+        resetCentroids();
+      }
+
+      function draw() {
+        if (!canvas.width) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw connections if assigned
+        if (state === 1) {
+          points.forEach(p => {
+            if (p.c !== -1 && centroids[p.c]) {
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(centroids[p.c].x, centroids[p.c].y);
+              ctx.strokeStyle = colors[p.c % colors.length] + "44"; // 26% opacity
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+            }
+          });
+        }
+
+        // Draw points
+        points.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI);
+          ctx.fillStyle = p.c === -1 ? "#bdc3c7" : colors[p.c % colors.length];
+          ctx.fill();
+          ctx.strokeStyle = "rgba(255,255,255,0.8)";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+
+        // Draw centroids
+        centroids.forEach(c => {
+          ctx.beginPath();
+          const s = 10;
+          ctx.moveTo(c.x - s, c.y - s); ctx.lineTo(c.x + s, c.y + s);
+          ctx.moveTo(c.x - s, c.y + s); ctx.lineTo(c.x + s, c.y - s);
+          ctx.strokeStyle = "#fff";
+          ctx.lineWidth = 5;
+          ctx.stroke();
+          ctx.strokeStyle = colors[c.c % colors.length];
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, 22, 0, 2 * Math.PI);
+          ctx.fillStyle = colors[c.c % colors.length] + "33";
+          ctx.fill();
+        });
+      }
+
+      function step() {
+        const K = parseInt(kSlider.value);
+        if (state === 0) {
+          let moved = false;
+          points.forEach(p => {
+            let minDist = Infinity;
+            let bestC = -1;
+            centroids.forEach(c => {
+              const d = Math.hypot(p.x - c.x, p.y - c.y);
+              if (d < minDist) { minDist = d; bestC = c.c; }
+            });
+            if (p.c !== bestC) moved = true;
+            p.c = bestC;
+          });
+          statusOut.textContent = "Assigned points";
+          state = 1;
+          if (!moved && iteration > 0) statusOut.textContent = "Converged!";
+        } else {
+          const sums = Array(K).fill(0).map(() => ({ x: 0, y: 0, count: 0 }));
+          points.forEach(p => {
+            if (p.c !== -1) {
+              sums[p.c].x += p.x; sums[p.c].y += p.y; sums[p.c].count++;
+            }
+          });
+          
+          centroids.forEach((c, i) => {
+            if (sums[i].count > 0) {
+              c.x = sums[i].x / sums[i].count;
+              c.y = sums[i].y / sums[i].count;
+            }
+          });
+          
+          iteration++;
+          statusOut.textContent = "Centroids moved (Iter " + iteration + ")";
+          state = 0;
+        }
+        draw();
+      }
+
+      canvas.addEventListener("click", function(e) {
+        const rect = canvas.getBoundingClientRect();
+        points.push({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+          c: -1
+        });
+        state = 0; // force re-assign next step
+        draw();
+      });
+
+      kSlider.addEventListener("input", () => {
+        kValOut.textContent = kSlider.value;
+        resetCentroids();
+      });
+
+      stepBtn.addEventListener("click", step);
+      genBtn.addEventListener("click", initData);
+      clearBtn.addEventListener("click", () => {
+        points = [];
+        resetCentroids();
+        statusOut.textContent = "Data Cleared";
+      });
+
+      setTimeout(() => {
+        resizeCanvas();
+        initData();
+      }, 100);
+    });
+  </script>
+</section>
