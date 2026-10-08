@@ -82,4 +82,4 @@ Understanding these fundamentals is the first step to stop seeing Artificial Int
 
 But an inevitable question arises: now that we know how to provide *features* and *labels* for a machine to learn, how can we be sure that it actually learned correctly and isn't just tricking us by "memorizing" the training data?
 
-That is exactly what we will explore in the **next article of our series, where we will dive into the world of Evaluation Metrics**. We will see how to fairly judge the performance of our models. See you then!
+That is exactly what we will explore in the **next article of our series, where we will dive into the world of Evaluation Metrics**. We will see how to fairly judge the performance of our models.

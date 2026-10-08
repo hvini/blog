@@ -82,4 +82,4 @@ Entender esses fundamentos é o primeiro passo para deixar de enxergar a Intelig
 
 Mas surge uma pergunta inevitável: agora que sabemos como fornecer *features* e *labels* para uma máquina aprender, como podemos ter certeza de que ela realmente aprendeu direito e não está apenas nos enganando ao "decorar" os dados de treino?
 
-É exatamente isso que vamos explorar no **próximo artigo da nossa série, onde mergulharemos no mundo das Métricas de Avaliação**. Veremos como julgar de forma justa o desempenho dos nossos modelos. Até lá!
+É exatamente isso que vamos explorar no **próximo artigo da nossa série, onde mergulharemos no mundo das Métricas de Avaliação**. Veremos como julgar de forma justa o desempenho dos nossos modelos.
