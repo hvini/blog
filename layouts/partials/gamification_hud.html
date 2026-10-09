@@ -267,6 +267,7 @@
     ];
     var BADGES = [
       {id:'first-article',   name:'First Steps',       desc:'Complete your first article',          icon:'📖'},
+      {id:'engaged-reader',  name:'Engaged Reader',    desc:'Leave a reaction on an article',       icon:'✨'},
       {id:'curious-mind',    name:'Curious Mind',       desc:'Interact with 5 interactive elements', icon:'🧠'},
       {id:'quizzer',         name:'Quizzer',            desc:'Complete 3 quizzes',                   icon:'✅'},
       {id:'knowledge-seeker',name:'Knowledge Seeker',   desc:'Complete 5 articles',                  icon:'🔍'},
@@ -289,6 +290,7 @@
       : 100;
 
     var unlockedCount = state.badges.length;
+    var reactionsCount = (state.reactedPosts && state.reactedPosts.length) || 0;
 
     var badgesHTML = BADGES.map(function(b) {
       var unlocked = state.badges.indexOf(b.id) !== -1;
@@ -317,7 +319,7 @@
           '<div class="gam-stat-card"><div class="gam-stat-value">' + state.completedArticles.length + '</div><div class="gam-stat-label">Articles</div></div>' +
           '<div class="gam-stat-card"><div class="gam-stat-value">' + state.completedQuizzes.length + '</div><div class="gam-stat-label">Quizzes</div></div>' +
           '<div class="gam-stat-card"><div class="gam-stat-value">' + state.interactedElements.length + '</div><div class="gam-stat-label">Experiments</div></div>' +
-          '<div class="gam-stat-card"><div class="gam-stat-value">' + unlockedCount + '</div><div class="gam-stat-label">Badges</div></div>' +
+          '<div class="gam-stat-card"><div class="gam-stat-value">' + reactionsCount + '</div><div class="gam-stat-label">Reactions</div></div>' +
         '</div>' +
       '</div>' +
 

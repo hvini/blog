@@ -2,7 +2,8 @@ export const SCORING = {
   article_completed: 10,
   quiz_completed: 50,
   chart_interacted: 15,
-  slider_completed: 15
+  slider_completed: 15,
+  post_reacted: 10
 };
 
 export const LEVELS = [
@@ -21,6 +22,13 @@ export const BADGES = [
     description: "Complete your first article",
     icon: "📖",
     condition: (state) => state.completedArticles.length >= 1
+  },
+  {
+    id: "engaged-reader",
+    name: "Engaged Reader",
+    description: "Leave a reaction on an article",
+    icon: "✨",
+    condition: (state) => (state.reactedPosts && state.reactedPosts.length >= 1) || (state.interactedElements && state.interactedElements.some(id => typeof id === 'string' && id.startsWith('reaction:')))
   },
   {
     id: "curious-mind",

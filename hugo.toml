@@ -26,6 +26,14 @@ defaultContentLanguageInSubdir = false
   author = "Vinícius"
   displayFullLangName = true
   comments = true
+
+  [params.reactions]
+    enabled = true
+    # Provider: "local" (default, zero-setup LocalStorage), "supabase", or "api"
+    provider = "supabase"
+    seedInitialCounts = false
+    supabaseUrl = "https://mvndxgtgltqcoeheunhq.supabase.co"
+    supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12bmR4Z3RnbHRxY29laGV1bmhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NDU4ODMsImV4cCI6MjEwNzEyMTg4M30.kuBvbHjAe-uvZm8tQguJ6gE9NkVMfMpsOFAmEiyP1GU"
   
   [params.assets]
     favicon = "<link / abs url>"

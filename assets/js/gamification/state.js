@@ -9,6 +9,7 @@ function getDefaultState() {
     completedArticles: [],
     completedQuizzes: [],
     interactedElements: [],
+    reactedPosts: [],
     badges: [],
     events: {}
   };
@@ -19,6 +20,9 @@ export function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return getDefaultState();
     const state = JSON.parse(raw);
+    if (!state.reactedPosts) {
+      state.reactedPosts = [];
+    }
     if (state.version !== CURRENT_VERSION) {
       // Future migration logic can be placed here
     }

@@ -152,3 +152,9 @@
 <!-- Build and bundle the JS using Hugo Pipes -->
 {{ $gamification := resources.Get "js/gamification/index.js" | js.Build }}
 <script src="{{ $gamification.RelPermalink }}" defer></script>
+
+<script>
+  window.REACTIONS_CONFIG = {{ site.Params.reactions | jsonify | safeJS }};
+</script>
+{{ $reactions := resources.Get "js/reactions/index.js" | js.Build }}
+<script src="{{ $reactions.RelPermalink }}" defer></script>

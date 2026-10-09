@@ -59,3 +59,22 @@
   translation: "Novembro"
 - id: month_12
   translation: "Dezembro"
+
+- id: reactions_title
+  translation: "O que você achou?"
+- id: reactions_subtitle
+  translation: "Deixe uma reação para apoiar e compartilhar seu feedback!"
+- id: reaction_like
+  translation: "Gostei"
+- id: reaction_love
+  translation: "Adorei"
+- id: reaction_insightful
+  translation: "Perspicaz"
+- id: reaction_rocket
+  translation: "Sensacional"
+- id: reaction_mindblown
+  translation: "Incrível"
+- id: reactions_total
+  translation: "Reações"
+- id: reactions_xp_hint
+  translation: "+10 XP"

@@ -52,6 +52,8 @@
     {{ partial "quiz.html" .Params.quiz }}
     {{- end }}
 
+    {{- partial "reactions.html" . }}
+
     <footer class="post-footer">
         {{- if .Params.tags }}
         <ul class="post-tags">

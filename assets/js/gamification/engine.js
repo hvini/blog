@@ -74,7 +74,8 @@ function formatCategoryText(cat) {
     article_completed: "Article completed!",
     quiz_completed: "Quiz completed!",
     chart_interacted: "Chart interacted!",
-    slider_completed: "Experiment completed!"
+    slider_completed: "Experiment completed!",
+    post_reacted: "Reaction shared!"
   };
   return map[cat] || "Task completed!";
 }
@@ -83,6 +84,7 @@ export function completeArticle(id) { processEvent('article', id, 'article_compl
 export function completeQuiz(id) { processEvent('quiz', id, 'quiz_completed', 'completedQuizzes'); }
 export function interactWithChart(id) { processEvent('chart', id, 'chart_interacted', 'interactedElements'); }
 export function completeSlider(id) { processEvent('slider', id, 'slider_completed', 'interactedElements'); }
+export function reactToPost(id) { processEvent('reaction', id, 'post_reacted', 'reactedPosts'); }
 
 // Expose generic emit for advanced usage
 export function emit(eventName, payload) {
@@ -91,6 +93,7 @@ export function emit(eventName, payload) {
   else if (eventName === 'quiz_completed') completeQuiz(id);
   else if (eventName === 'chart_interacted') interactWithChart(id);
   else if (eventName === 'slider_completed') completeSlider(id);
+  else if (eventName === 'post_reacted') reactToPost(id);
 }
 
 // Listen to custom DOM events emitted by our interactive components
@@ -98,3 +101,4 @@ document.addEventListener('gamification:article_completed', e => completeArticle
 document.addEventListener('gamification:quiz_completed', e => completeQuiz(e.detail.id));
 document.addEventListener('gamification:chart_interacted', e => interactWithChart(e.detail.id));
 document.addEventListener('gamification:slider_completed', e => completeSlider(e.detail.id));
+document.addEventListener('gamification:post_reacted', e => reactToPost(e.detail.id));

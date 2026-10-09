@@ -1,0 +1,59 @@
+{{- if and (ne .Params.disableReactions true) (site.Params.reactions.enabled | default true) }}
+{{- $postId := "" }}
+{{- if .File }}
+  {{- $postId = .File.UniqueID }}
+{{- else }}
+  {{- $postId = .RelPermalink }}
+{{- end }}
+
+<section class="post-reactions-card" data-reaction-container data-post-id="{{ $postId }}" aria-label="{{ i18n "reactions_title" | default "Reactions" }}">
+  <div class="post-reactions-header">
+    <div class="post-reactions-info">
+      <div class="post-reactions-title-wrap">
+        <h3 class="post-reactions-title">{{ i18n "reactions_title" | default "What did you think?" }}</h3>
+        <span class="post-reactions-xp-chip" title="Reacting awards +10 XP">✨ {{ i18n "reactions_xp_hint" | default "+10 XP" }}</span>
+      </div>
+      <p class="post-reactions-subtitle">{{ i18n "reactions_subtitle" | default "Leave a reaction to let the author know your thoughts!" }}</p>
+    </div>
+    <div class="post-reactions-meta">
+      <div class="post-reactions-total-pill" title="{{ i18n "reactions_total" | default "Reactions" }}">
+        <span class="post-reactions-sparkle-icon" aria-hidden="true">💖</span>
+        <span data-reaction-total-count>0</span>
+        <span>{{ i18n "reactions_total" | default "Reactions" }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="post-reactions-grid" role="group" aria-label="Reaction buttons">
+    <button type="button" class="reaction-btn" data-reaction-btn="like" data-reaction-label="{{ i18n "reaction_like" | default "Like" }}" aria-pressed="false" aria-label="{{ i18n "reaction_like" | default "Like" }}">
+      <span class="reaction-emoji" aria-hidden="true">👍</span>
+      <span class="reaction-label">{{ i18n "reaction_like" | default "Like" }}</span>
+      <span class="reaction-count" data-reaction-count>0</span>
+    </button>
+
+    <button type="button" class="reaction-btn" data-reaction-btn="love" data-reaction-label="{{ i18n "reaction_love" | default "Love" }}" aria-pressed="false" aria-label="{{ i18n "reaction_love" | default "Love" }}">
+      <span class="reaction-emoji" aria-hidden="true">❤️</span>
+      <span class="reaction-label">{{ i18n "reaction_love" | default "Love" }}</span>
+      <span class="reaction-count" data-reaction-count>0</span>
+    </button>
+
+    <button type="button" class="reaction-btn" data-reaction-btn="insightful" data-reaction-label="{{ i18n "reaction_insightful" | default "Insightful" }}" aria-pressed="false" aria-label="{{ i18n "reaction_insightful" | default "Insightful" }}">
+      <span class="reaction-emoji" aria-hidden="true">💡</span>
+      <span class="reaction-label">{{ i18n "reaction_insightful" | default "Insightful" }}</span>
+      <span class="reaction-count" data-reaction-count>0</span>
+    </button>
+
+    <button type="button" class="reaction-btn" data-reaction-btn="rocket" data-reaction-label="{{ i18n "reaction_rocket" | default "Rocket" }}" aria-pressed="false" aria-label="{{ i18n "reaction_rocket" | default "Rocket" }}">
+      <span class="reaction-emoji" aria-hidden="true">🚀</span>
+      <span class="reaction-label">{{ i18n "reaction_rocket" | default "Rocket" }}</span>
+      <span class="reaction-count" data-reaction-count>0</span>
+    </button>
+
+    <button type="button" class="reaction-btn" data-reaction-btn="mindblown" data-reaction-label="{{ i18n "reaction_mindblown" | default "Mind Blown" }}" aria-pressed="false" aria-label="{{ i18n "reaction_mindblown" | default "Mind Blown" }}">
+      <span class="reaction-emoji" aria-hidden="true">🤯</span>
+      <span class="reaction-label">{{ i18n "reaction_mindblown" | default "Mind Blown" }}</span>
+      <span class="reaction-count" data-reaction-count>0</span>
+    </button>
+  </div>
+</section>
+{{- end }}
