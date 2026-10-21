@@ -11,7 +11,7 @@ tags: ["Security", "Legacy", "ZIP", "Reverse Engineering"]
 ### Introducão
 
 Recentemente, estive diante de um desafio onde precisava converter alguns arquivos de telemetria em formato CSV. Uma tarefa trivial, não?  
-Porém, ao olhar os arquivos, percebi que não seria resolvido apenas com um simples ***pd.read_csv()***.
+Porém, ao olhar os arquivos, percebi que não seria resolvido apenas com um simples ***df.to_csv()***.
 
 Foi aí então que começou a minha saga para descobrir: que tipo de arquivo era aquele, de qual software vinha, se havia algum conversor disponibilizado pela comunidade e, caso contrário, quais seriam as minhas possibilidades.
 
